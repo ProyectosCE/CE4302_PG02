@@ -183,14 +183,18 @@ make clean
 Ejecutar:
 
 ```bash
-./run.sh
+./run.sh "dataset size"
 ```
+
+Donde "dataset size" puede ser: small, medium o large
 
 O directamente:
 
 ```bash
-./build/fir_project
+./build/fir_project "dataset size"
 ```
+
+Donde "dataset size" puede ser: small, medium o large
 
 ---
 

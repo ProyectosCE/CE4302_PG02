@@ -2,3 +2,6 @@
 build/
 Codigo Fuente/build/
 
+# Ignore output_signal folders inside results
+Codigo Fuente/results/*/output_signal/
+
