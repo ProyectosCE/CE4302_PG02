@@ -5,23 +5,77 @@
 
 /**
  * @file validation.h
- * @brief Funciones para validación y almacenamiento de resultados en formato binario.
+ * @brief Funciones auxiliares para almacenamiento de resultados y validación.
+ *
+ * Este módulo permite almacenar los resultados generados por las implementaciones:
+ *
+ * - Scalar
+ * - SIMD
+ * - GPU
+ *
+ * Los resultados se almacenan en formato binario float32 para:
+ *
+ * - minimizar overhead de escritura,
+ * - facilitar comparación entre implementaciones,
+ * - permitir análisis posterior mediante Python,
+ * - mantener compatibilidad con SIMD y GPU.
  */
 
 /**
- * @brief Guarda un arreglo de datos en formato binario.
+ * @brief Guarda una señal filtrada en formato binario float32.
  *
- * Esta función almacena un arreglo de datos de tipo float en un archivo binario especificado por la ruta.
+ * La función almacena un arreglo de floats utilizando escritura binaria directa.
  *
- * @param output_path Ruta del archivo de salida donde se guardarán los datos.
- * @param data Puntero al arreglo de datos a guardar.
- * @param size Cantidad de elementos (floats) a guardar en el archivo.
- * @return int Devuelve 0 si la operación fue exitosa, o un valor negativo si ocurrió un error.
+ * Formato:
+ *
+ * - float32 little-endian
+ * - contiguous memory layout
+ *
+ * Este formato permite:
+ *
+ * - lectura rápida desde Python usando numpy.fromfile(),
+ * - comparación eficiente entre implementaciones,
+ * - evitar overhead de serialización.
+ *
+ * @param output_path Ruta completa del archivo binario de salida.
+ * @param data Puntero al arreglo de datos a almacenar.
+ * @param size Cantidad de elementos float a escribir.
+ *
+ * @return int
+ * - 0 si la operación fue exitosa.
+ * - -1 si ocurrió un error.
  */
 int save_output_binary(
-    const char* output_path, /**< Ruta del archivo de salida */
-    const float* data,       /**< Puntero al arreglo de datos */
-    size_t size              /**< Cantidad de elementos a guardar */
+    const char* output_path,
+    const float* data,
+    size_t size
+);
+
+/**
+ * @brief Construye automáticamente la ruta de salida para una implementación.
+ *
+ * Genera rutas con el siguiente formato:
+ *
+ * results/<implementation>/output_signal/<dataset>_filter_<id>.bin
+ *
+ * Ejemplo:
+ *
+ * results/scalar/output_signal/small_filter_03.bin
+ *
+ * @param output_path Buffer donde se almacenará la ruta generada.
+ * @param max_length Tamaño máximo del buffer.
+ * @param implementation Nombre de implementación:
+ *        "scalar", "simd" o "gpu".
+ * @param dataset_name Nombre del dataset:
+ *        "small", "medium" o "large".
+ * @param filter_id Identificador del filtro.
+ */
+void build_output_path(
+    char* output_path,
+    size_t max_length,
+    const char* implementation,
+    const char* dataset_name,
+    int filter_id
 );
 
 #endif
