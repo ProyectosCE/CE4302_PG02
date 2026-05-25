@@ -3,12 +3,25 @@
 #include "../include/common.h"
 
 #include <stdio.h>
-#include <string.h>
 
+/**
+ * @brief Función externa para impresión de benchmark.
+ */
 void print_benchmark_result(
     const benchmark_result_t* result
 );
 
+/**
+ * @brief Punto de entrada principal.
+ *
+ * Uso:
+ *
+ * ./build/fir_project <dataset>
+ *
+ * Ejemplo:
+ *
+ * ./build/fir_project small
+ */
 int main(int argc, char* argv[])
 {
     if (argc < 2)

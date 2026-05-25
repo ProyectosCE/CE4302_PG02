@@ -11,6 +11,9 @@
 /**
  * @brief Ejecuta un filtro FIR escalar sobre una señal.
  *
+ * Esta función aplica una convolución FIR secuencial utilizando
+ * una implementación completamente escalar (sin SIMD ni GPU).
+ *
  * @param signal Señal de entrada.
  * @param filter Coeficientes del filtro FIR.
  * @param output Buffer de salida.
@@ -28,8 +31,11 @@ void fir_scalar(
 /**
  * @brief Ejecuta benchmark completo de FIR escalar.
  *
- * Ejecuta todos los filtros sobre la señal,
- * mide tiempo y guarda resultados binarios.
+ * Esta función centraliza:
+ * - ejecución de todos los filtros FIR,
+ * - medición de tiempo,
+ * - cálculo de throughput,
+ * - generación de outputs binarios.
  *
  * @param dataset Dataset cargado.
  * @param dataset_name Nombre del dataset.
