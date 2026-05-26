@@ -7,6 +7,7 @@ if [ $# -lt 2 ]; then
     echo "Implementations:"
     echo "  scalar"
     echo "  simd"
+    echo "  gpu"
     echo ""
     echo "Datasets:"
     echo "  small"
@@ -20,10 +21,11 @@ DATASET=$2
 
 # VALIDACION IMPLEMENTACION
 if [ "$IMPLEMENTATION" != "scalar" ] && \
-   [ "$IMPLEMENTATION" != "simd" ]; then
+   [ "$IMPLEMENTATION" != "simd" ] && \
+   [ "$IMPLEMENTATION" != "gpu" ]; then
 
     echo "Invalid implementation: $IMPLEMENTATION"
-    echo "Available implementations: scalar, simd"
+    echo "Available implementations: scalar, simd, gpu"
     exit 1
 fi
 
@@ -39,12 +41,20 @@ fi
 
 # BUILD
 make clean
-make $IMPLEMENTATION
+make "$IMPLEMENTATION"
 
 # VALIDAR BUILD EXITOSO
 if [ $? -ne 0 ]; then
     echo ""
     echo "Build failed."
+    exit 1
+fi
+
+# VALIDAR EJECUTABLE
+if [ ! -f "./build/fir_project" ]; then
+    echo ""
+    echo "Executable not found:"
+    echo "./build/fir_project"
     exit 1
 fi
 
@@ -55,4 +65,4 @@ echo "Implementation : $IMPLEMENTATION"
 echo "Dataset        : $DATASET"
 echo ""
 
-./build/fir_project $DATASET
+./build/fir_project "$DATASET"
