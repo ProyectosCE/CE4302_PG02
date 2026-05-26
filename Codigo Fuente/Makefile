@@ -13,6 +13,7 @@ TARGET=build/fir_project
 # - Deshabilita uso automático de SIMD
 SCALAR_CFLAGS=\
 	$(COMMON_CFLAGS) \
+	-DBUILD_SCALAR \
 	-fno-tree-vectorize \
 	-mno-avx \
 	-mno-avx2 \
@@ -22,6 +23,7 @@ SCALAR_CFLAGS=\
 # Fuerza soporte AVX2/FMA
 SIMD_CFLAGS=\
 	$(COMMON_CFLAGS) \
+	-DBUILD_SIMD \
 	-mavx2 \
 	-mfma
 
