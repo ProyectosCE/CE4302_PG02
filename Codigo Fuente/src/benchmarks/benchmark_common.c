@@ -1,4 +1,4 @@
-#include "../../include/common.h"
+#include "../../include/benchmark_common.h"
 
 #include <stdio.h>
 
@@ -7,14 +7,6 @@
  * @brief Funciones comunes de benchmarks FIR.
  */
 
-/**
- * @brief Imprime en consola los resultados de un benchmark FIR.
- *
- * Muestra el nombre del dataset, la implementación utilizada,
- * el tiempo de ejecución y el throughput.
- *
- * @param result Resultados del benchmark.
- */
 void print_benchmark_result(
     const benchmark_result_t* result
 )

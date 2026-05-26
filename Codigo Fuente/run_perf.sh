@@ -63,7 +63,7 @@ echo "========================================================="
 echo ""
 
 make clean
-make $IMPLEMENTATION
+make "$IMPLEMENTATION"
 
 # VALIDAR COMPILACION
 if [ $? -ne 0 ]; then
@@ -100,25 +100,28 @@ run_perf()
 
     # LIMPIEZA CACHE
     sync
-
     sudo sh -c "echo 3 > /proc/sys/vm/drop_caches"
 
     # PERF EXECUTION
     #
     # IMPORTANTE:
-    # El binario ahora recibe SOLO:
+    # El binario recibe SOLO:
     #
     # ./build/fir_project <dataset>
     #
-    # porque cada implementación compila
-    # un main distinto.
+    # La implementación se selecciona en compilación mediante:
+    # BUILD_SCALAR, BUILD_SIMD o BUILD_GPU.
+    #
+    # Para GPU, perf mide principalmente el comportamiento del host:
+    # dispatch OpenCL, transferencias, sincronización y lectura/escritura.
+    # El trabajo interno del kernel GPU no se refleja como instrucciones CPU.
     #
 
-    taskset -c $CORE_ID \
+    taskset -c "$CORE_ID" \
     /usr/lib/linux-tools/6.8.0-117-generic/perf stat \
-    -r $RUNS \
-    -e $PERF_EVENTS \
-    ./build/fir_project $DATASET \
+    -r "$RUNS" \
+    -e "$PERF_EVENTS" \
+    ./build/fir_project "$DATASET" \
     2> "$OUTPUT_FILE"
 
     echo ""
@@ -128,9 +131,9 @@ run_perf()
 }
 
 # EJECUCIONES
-run_perf "small"  $SMALL_RUNS
-run_perf "medium" $MEDIUM_RUNS
-run_perf "large"  $LARGE_RUNS
+run_perf "small"  "$SMALL_RUNS"
+run_perf "medium" "$MEDIUM_RUNS"
+run_perf "large"  "$LARGE_RUNS"
 
 # FINAL
 echo ""
