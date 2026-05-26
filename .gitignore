@@ -8,6 +8,9 @@ Codigo Fuente/results/*/output_signal/
 # Ignore perf folders inside results
 Codigo Fuente/results/*/perf/*
 
+# Ignore asm_output folders inside results
+Codigo Fuente/results/*/asm_output/*
+
 # Ignore Python virtual environment
 Codigo Fuente/venv/
 

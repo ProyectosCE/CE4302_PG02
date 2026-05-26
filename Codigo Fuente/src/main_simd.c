@@ -1,8 +1,11 @@
 #include "../include/dataset.h"
-#include "../include/fir_scalar.h"
 #include "../include/common.h"
 
+#include "../include/scalar_benchmark.h"
+#include "../include/simd_benchmark.h"
+
 #include <stdio.h>
+#include <string.h>
 
 /**
  * @brief Función externa para impresión de benchmark.
@@ -12,7 +15,7 @@ void print_benchmark_result(
 );
 
 /**
- * @brief Punto de entrada principal.
+ * @brief Punto de entrada principal para implementación SIMD.
  *
  * Uso:
  *
@@ -20,7 +23,7 @@ void print_benchmark_result(
  *
  * Ejemplo:
  *
- * ./build/fir_project small
+ * ./build/fir_project medium
  */
 int main(int argc, char* argv[])
 {
@@ -36,19 +39,38 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    const char* dataset_name =
+        argv[1];
+
+    /* VALIDACION DATASET */
+    if (strcmp(dataset_name, "small") != 0 &&
+        strcmp(dataset_name, "medium") != 0 &&
+        strcmp(dataset_name, "large") != 0)
+    {
+        fprintf(stderr,
+                "Invalid dataset: %s\n",
+                dataset_name);
+
+        fprintf(stderr,
+                "Available datasets: small, medium, large\n");
+
+        return -1;
+    }
+
     char dataset_path[MAX_PATH_LENGTH];
 
     snprintf(
         dataset_path,
         MAX_PATH_LENGTH,
         "datasets/%s",
-        argv[1]
+        dataset_name
     );
 
     dataset_t dataset;
 
-    if (load_dataset(dataset_path,
-                     &dataset) != 0)
+    if (load_dataset(
+            dataset_path,
+            &dataset) != 0)
     {
         fprintf(stderr,
                 "Failed loading dataset: %s\n",
@@ -61,13 +83,13 @@ int main(int argc, char* argv[])
 
     benchmark_result_t result;
 
-    if (run_fir_scalar_benchmark(
+    if (run_fir_simd_benchmark(
             &dataset,
-            argv[1],
+            dataset_name,
             &result) != 0)
     {
         fprintf(stderr,
-                "Scalar benchmark failed.\n");
+                "SIMD benchmark failed.\n");
 
         free_dataset(&dataset);
 

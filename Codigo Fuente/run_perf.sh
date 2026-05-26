@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # FIR PERFORMANCE ANALYSIS SCRIPT
-
+#
 # USAGE:
+#
 # ./run_perf.sh scalar
 # ./run_perf.sh simd
 # ./run_perf.sh gpu
@@ -20,7 +21,21 @@ fi
 
 IMPLEMENTATION=$1
 
-# CONFIGURACION
+# VALIDACION IMPLEMENTACION
+if [[ "$IMPLEMENTATION" != "scalar" &&
+      "$IMPLEMENTATION" != "simd" &&
+      "$IMPLEMENTATION" != "gpu" ]]; then
+
+    echo "Invalid implementation: $IMPLEMENTATION"
+    echo ""
+    echo "Available implementations:"
+    echo "  scalar"
+    echo "  simd"
+    echo "  gpu"
+    exit 1
+fi
+
+# CONFIGURACION PERF
 CORE_ID=0
 
 PERF_EVENTS="\
@@ -37,14 +52,8 @@ LARGE_RUNS=10
 
 RESULTS_DIR="results/${IMPLEMENTATION}/perf"
 
-# VALIDACION IMPLEMENTACION
-if [[ "$IMPLEMENTATION" != "scalar" &&
-      "$IMPLEMENTATION" != "simd" &&
-      "$IMPLEMENTATION" != "gpu" ]]; then
-
-    echo "Invalid implementation: $IMPLEMENTATION"
-    exit 1
-fi
+# CREAR DIRECTORIO RESULTADOS
+mkdir -p "$RESULTS_DIR"
 
 # COMPILACION
 echo ""
@@ -56,13 +65,22 @@ echo ""
 make clean
 make $IMPLEMENTATION
 
+# VALIDAR COMPILACION
 if [ $? -ne 0 ]; then
     echo ""
     echo "Compilation failed."
     exit 1
 fi
 
-# PERF EXECUTION FUNCTION
+# VALIDAR EJECUTABLE
+if [ ! -f "./build/fir_project" ]; then
+    echo ""
+    echo "Executable not found:"
+    echo "./build/fir_project"
+    exit 1
+fi
+
+# FUNCION PERF
 run_perf()
 {
     DATASET=$1
@@ -85,8 +103,17 @@ run_perf()
 
     sudo sh -c "echo 3 > /proc/sys/vm/drop_caches"
 
-    # PERF
-    #Cambiar a perf stat si el ubuntu no fue modificado
+    # PERF EXECUTION
+    #
+    # IMPORTANTE:
+    # El binario ahora recibe SOLO:
+    #
+    # ./build/fir_project <dataset>
+    #
+    # porque cada implementación compila
+    # un main distinto.
+    #
+
     taskset -c $CORE_ID \
     /usr/lib/linux-tools/6.8.0-117-generic/perf stat \
     -r $RUNS \

@@ -41,6 +41,13 @@ fi
 make clean
 make $IMPLEMENTATION
 
+# VALIDAR BUILD EXITOSO
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "Build failed."
+    exit 1
+fi
+
 # RUN
 echo ""
 echo "Running FIR Project..."

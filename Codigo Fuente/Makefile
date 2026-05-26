@@ -11,35 +11,38 @@ TARGET=build/fir_project
 # Scalar puro:
 # - Deshabilita vectorización automática
 # - Deshabilita uso automático de SIMD
-# - Mantiene optimizaciones generales de O3
 SCALAR_CFLAGS=\
 	$(COMMON_CFLAGS) \
 	-fno-tree-vectorize \
 	-mno-avx \
 	-mno-avx2 \
-	-mno-fma \
+	-mno-fma
 
 # SIMD FLAGS
 # Fuerza soporte AVX2/FMA
-# Preparado para intrinsics AVX2
 SIMD_CFLAGS=\
 	$(COMMON_CFLAGS) \
 	-mavx2 \
 	-mfma
 
-# SOURCE FILES
+# COMMON SOURCE FILES
 COMMON_SRC=\
-	src/main.c \
 	src/dataset/dataset.c \
 	src/utils/aligned_memory.c \
 	src/utils/timer.c \
 	src/utils/validation.c \
-	src/benchmarks/benchmark.c
+	src/benchmarks/benchmark_common.c
 
+# SCALAR SOURCE FILES
 SCALAR_SRC=\
+	src/main_scalar.c \
+	src/benchmarks/scalar_benchmark.c \
 	src/scalar/fir_scalar.c
 
+# SIMD SOURCE FILES
 SIMD_SRC=\
+	src/main_simd.c \
+	src/benchmarks/simd_benchmark.c \
 	src/simd/fir_simd.c
 
 # DEFAULT TARGET
