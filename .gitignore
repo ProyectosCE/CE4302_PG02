@@ -1,0 +1,13 @@
+# Ignore build directories
+build/
+Codigo Fuente/build/
+
+# Ignore output_signal folders inside results
+Codigo Fuente/results/*/output_signal/
+
+# Ignore perf folders inside results
+Codigo Fuente/results/*/perf/*
+
+# Ignore Python virtual environment
+Codigo Fuente/venv/
+
