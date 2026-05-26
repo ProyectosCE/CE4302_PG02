@@ -356,6 +356,157 @@ large_perf.txt
 
 ---
 
+# Análisis de instrucciones ensamblador
+
+El proyecto incluye el script `run_asm.sh` para generar y analizar el código ensamblador producido por GCC.
+
+Este análisis permite verificar:
+
+* uso correcto de instrucciones SIMD AVX2/FMA,
+* ausencia de vectorización automática en scalar,
+* generación real de instrucciones vectoriales,
+* utilización de registros `ymm` y operaciones FMA.
+
+---
+
+## Uso general
+
+```bash
+./run_asm.sh <implementation>
+```
+
+---
+
+## Implementaciones soportadas
+
+```text
+scalar
+simd
+```
+
+---
+
+## Ejemplos de análisis ensamblador
+
+### Scalar
+
+```bash
+./run_asm.sh scalar
+```
+
+### SIMD
+
+```bash
+./run_asm.sh simd
+```
+
+---
+
+## Resultados generados
+
+Los resultados se almacenan automáticamente en:
+
+```text
+results/<implementation>/asm_output/
+```
+
+Ejemplos:
+
+```text
+results/scalar/asm_output/
+results/simd/asm_output/
+```
+
+---
+
+## Archivos generados
+
+Cada análisis genera:
+
+```text
+full_disassembly.txt
+fir_functions_only.txt
+```
+
+### full_disassembly.txt
+
+Contiene el desensamblado completo del binario compilado.
+
+### fir_functions_only.txt
+
+Contiene únicamente las funciones FIR relevantes para análisis arquitectónico.
+
+---
+
+## Reporte SIMD automático
+
+Para la implementación SIMD también se genera:
+
+```text
+simd_instructions.txt
+```
+
+Este archivo contiene únicamente instrucciones vectoriales relevantes detectadas automáticamente mediante búsqueda de:
+
+* `ymm`
+* `xmm`
+* `vfmadd`
+* `vmovups`
+* `vmulps`
+* `vaddps`
+
+---
+
+## Verificación esperada
+
+### Scalar
+
+La implementación scalar NO debe contener:
+
+* instrucciones `ymm`,
+* instrucciones AVX2,
+* operaciones FMA.
+
+Esto valida correctamente:
+
+```bash
+-fno-tree-vectorize
+-mno-avx
+-mno-avx2
+-mno-fma
+```
+
+---
+
+### SIMD
+
+La implementación SIMD debe contener instrucciones como:
+
+```asm
+vfmadd231ps
+vmovups
+vmulps
+vaddps
+```
+
+y registros vectoriales:
+
+```asm
+ymm0
+ymm1
+ymm2
+```
+
+Esto confirma:
+
+* vectorización explícita,
+* uso de AVX2,
+* uso de FMA,
+* paralelismo SIMD real.
+
+
+---
+
 # Requisitos
 
 ## Sistema Operativo
