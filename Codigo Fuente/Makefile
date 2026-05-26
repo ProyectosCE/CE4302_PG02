@@ -40,6 +40,7 @@ SCALAR_SRC=\
 	src/scalar/fir_scalar.c
 
 SIMD_SRC=\
+	src/scalar/fir_scalar.c \
 	src/simd/fir_simd.c
 
 # DEFAULT TARGET

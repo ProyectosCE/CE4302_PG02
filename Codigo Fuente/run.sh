@@ -48,4 +48,4 @@ echo "Implementation : $IMPLEMENTATION"
 echo "Dataset        : $DATASET"
 echo ""
 
-./build/fir_project $DATASET
+./build/fir_project $IMPLEMENTATION $DATASET
