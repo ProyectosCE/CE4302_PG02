@@ -2,13 +2,14 @@ __kernel void fir_filter_bank(
     __global const float* signal,
     __global const float* filters,
     __global float* output,
+    __global int* wg_ids,
     const int signal_size,
     const int filter_order,
     const int filter_count
 )
 {
-    int n = get_global_id(0);
-    int f = get_global_id(1);
+    int n = get_global_id(0); // muestra
+    int f = get_global_id(1); // filtro
 
     if (n >= signal_size || f >= filter_count)
     {
@@ -29,4 +30,7 @@ __kernel void fir_filter_bank(
     }
 
     output[output_base + n] = acc;
+
+    // Para análisis de distribución de carga.
+    wg_ids[output_base + n] = get_group_id(0);
 }

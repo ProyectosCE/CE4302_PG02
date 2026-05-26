@@ -3,29 +3,34 @@ CC=gcc
 # COMMON FLAGS
 COMMON_CFLAGS=-O3 -Wall -Wextra -std=c11 -Iinclude
 
-LDFLAGS=-lrt
+LDFLAGS=-lrt -lm
 
 TARGET=build/fir_project
 
 # SCALAR FLAGS
-# Scalar puro:
-# - Deshabilita vectorización automática
-# - Deshabilita uso automático de SIMD
-# - Mantiene optimizaciones generales de O3
 SCALAR_CFLAGS=\
 	$(COMMON_CFLAGS) \
+	-DBUILD_SCALAR \
 	-fno-tree-vectorize \
 	-mno-avx \
 	-mno-avx2 \
-	-mno-fma \
+	-mno-fma
 
 # SIMD FLAGS
-# Fuerza soporte AVX2/FMA
-# Preparado para intrinsics AVX2
 SIMD_CFLAGS=\
 	$(COMMON_CFLAGS) \
+	-DBUILD_SIMD \
 	-mavx2 \
 	-mfma
+
+# GPU FLAGS
+GPU_CFLAGS=\
+	$(COMMON_CFLAGS) \
+	-DBUILD_GPU
+
+GPU_LDFLAGS=\
+	$(LDFLAGS) \
+	-lOpenCL
 
 # SOURCE FILES
 COMMON_SRC=\
@@ -41,6 +46,10 @@ SCALAR_SRC=\
 
 SIMD_SRC=\
 	src/simd/fir_simd.c
+
+GPU_SRC=\
+	src/gpu/fir_gpu.c \
+	src/gpu/opencl_utils.c
 
 # DEFAULT TARGET
 all: scalar
@@ -68,6 +77,18 @@ simd:
 	$(SIMD_SRC) \
 	-o $(TARGET) \
 	$(LDFLAGS)
+
+# GPU BUILD
+gpu:
+	mkdir -p build
+	mkdir -p results/gpu/output_signal
+
+	$(CC) \
+	$(GPU_CFLAGS) \
+	$(COMMON_SRC) \
+	$(GPU_SRC) \
+	-o $(TARGET) \
+	$(GPU_LDFLAGS)
 
 # CLEAN
 clean:

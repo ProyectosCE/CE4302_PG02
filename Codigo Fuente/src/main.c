@@ -1,27 +1,9 @@
 #include "../include/dataset.h"
-#include "../include/fir_scalar.h"
 #include "../include/common.h"
+#include "../include/benchmark.h"
 
 #include <stdio.h>
 
-/**
- * @brief Función externa para impresión de benchmark.
- */
-void print_benchmark_result(
-    const benchmark_result_t* result
-);
-
-/**
- * @brief Punto de entrada principal.
- *
- * Uso:
- *
- * ./build/fir_project <dataset>
- *
- * Ejemplo:
- *
- * ./build/fir_project small
- */
 int main(int argc, char* argv[])
 {
     if (argc < 2)
@@ -61,6 +43,8 @@ int main(int argc, char* argv[])
 
     benchmark_result_t result;
 
+#if defined(BUILD_SCALAR)
+
     if (run_fir_scalar_benchmark(
             &dataset,
             argv[1],
@@ -73,6 +57,47 @@ int main(int argc, char* argv[])
 
         return -1;
     }
+
+#elif defined(BUILD_SIMD)
+
+    if (run_fir_simd_benchmark(
+            &dataset,
+            argv[1],
+            &result) != 0)
+    {
+        fprintf(stderr,
+                "SIMD benchmark failed.\n");
+
+        free_dataset(&dataset);
+
+        return -1;
+    }
+
+#elif defined(BUILD_GPU)
+
+    if (run_fir_gpu_benchmark(
+            &dataset,
+            argv[1],
+            &result) != 0)
+    {
+        fprintf(stderr,
+                "GPU benchmark failed.\n");
+
+        free_dataset(&dataset);
+
+        return -1;
+    }
+
+#else
+
+    fprintf(stderr,
+            "Error: no implementation selected at compile time.\n");
+
+    free_dataset(&dataset);
+
+    return -1;
+
+#endif
 
     print_benchmark_result(&result);
 

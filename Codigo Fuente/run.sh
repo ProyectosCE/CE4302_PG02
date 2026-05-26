@@ -7,6 +7,7 @@ if [ $# -lt 2 ]; then
     echo "Implementations:"
     echo "  scalar"
     echo "  simd"
+    echo "  gpu"
     echo ""
     echo "Datasets:"
     echo "  small"
@@ -20,10 +21,11 @@ DATASET=$2
 
 # VALIDACION IMPLEMENTACION
 if [ "$IMPLEMENTATION" != "scalar" ] && \
-   [ "$IMPLEMENTATION" != "simd" ]; then
+   [ "$IMPLEMENTATION" != "simd" ] && \
+   [ "$IMPLEMENTATION" != "gpu" ]; then
 
     echo "Invalid implementation: $IMPLEMENTATION"
-    echo "Available implementations: scalar, simd"
+    echo "Available implementations: scalar, simd, gpu"
     exit 1
 fi
 
@@ -40,6 +42,12 @@ fi
 # BUILD
 make clean
 make $IMPLEMENTATION
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "Compilation failed."
+    exit 1
+fi
 
 # RUN
 echo ""
