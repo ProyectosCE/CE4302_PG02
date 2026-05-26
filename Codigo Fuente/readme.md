@@ -162,15 +162,23 @@ sobre un entorno reproducible y orientado a HPC.
 
 ---
 
-# Compilación
+## Compilación
 
 Desde el directorio `Codigo Fuente/` ejecutar:
 
+### Compilar implementación escalar
+
 ```bash
-make
+make scalar
 ```
 
-Para limpiar archivos compilados:
+### Compilar implementación SIMD AVX2/FMA
+
+```bash
+make simd
+```
+
+### Limpiar binarios compilados
 
 ```bash
 make clean
@@ -180,21 +188,171 @@ make clean
 
 # Ejecución
 
-Ejecutar:
+El proyecto utiliza el script `run.sh` para automatizar:
+
+* compilación,
+* creación de directorios,
+* ejecución del benchmark.
+
+## Uso general
 
 ```bash
-./run.sh "dataset size"
+./run.sh <implementation> <dataset>
 ```
 
-Donde "dataset size" puede ser: small, medium o large
+## Implementaciones disponibles
 
-O directamente:
+```text
+scalar
+simd
+gpu
+```
+
+## Datasets disponibles
+
+```text
+small
+medium
+large
+```
+
+---
+
+## Ejemplos de ejecución
+
+### Scalar
 
 ```bash
-./build/fir_project "dataset size"
+./run.sh scalar small
+./run.sh scalar medium
+./run.sh scalar large
 ```
 
-Donde "dataset size" puede ser: small, medium o large
+### SIMD
+
+```bash
+./run.sh simd small
+./run.sh simd medium
+./run.sh simd large
+```
+
+### GPU
+
+```bash
+./run.sh gpu small
+./run.sh gpu medium
+./run.sh gpu large
+```
+
+---
+
+## Ejecución manual del binario
+
+También es posible ejecutar directamente el ejecutable compilado:
+
+```bash
+./build/fir_project <dataset>
+```
+
+Ejemplo:
+
+```bash
+./build/fir_project small
+```
+
+---
+
+# Perfilado de rendimiento (perf)
+
+El proyecto incluye el script `run_perf.sh` para realizar análisis de rendimiento utilizando Linux `perf`.
+
+El script automatiza:
+
+* compilación,
+* fijación de afinidad de CPU,
+* limpieza de caché,
+* ejecución repetida,
+* recolección de métricas HPC,
+* almacenamiento de resultados.
+
+---
+
+## Uso general
+
+```bash
+./run_perf.sh <implementation>
+```
+
+---
+
+## Implementaciones soportadas
+
+```text
+scalar
+simd
+gpu
+```
+
+---
+
+## Ejemplos de perfilado
+
+### Scalar
+
+```bash
+./run_perf.sh scalar
+```
+
+### SIMD
+
+```bash
+./run_perf.sh simd
+```
+
+### GPU
+
+```bash
+./run_perf.sh gpu
+```
+
+---
+
+## Métricas recolectadas
+
+El análisis con `perf` incluye:
+
+* cycles
+* instructions
+* cache-references
+* cache-misses
+* branches
+* branch-misses
+
+---
+
+## Resultados generados
+
+Los resultados se almacenan automáticamente en:
+
+```text
+results/<implementation>/perf/
+```
+
+Ejemplos:
+
+```text
+results/scalar/perf/
+results/simd/perf/
+results/gpu/perf/
+```
+
+Cada implementación genera archivos separados para:
+
+```text
+small_perf.txt
+medium_perf.txt
+large_perf.txt
+```
 
 ---
 
