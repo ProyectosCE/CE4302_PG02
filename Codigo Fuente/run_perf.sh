@@ -82,6 +82,8 @@ RESULTS_DIR="results/${IMPLEMENTATION}/perf"
 # CREAR DIRECTORIO RESULTADOS
 mkdir -p "$RESULTS_DIR"
 
+mkdir -p "results/gpu/profiling"
+
 # COMPILACION
 echo ""
 echo "========================================================="

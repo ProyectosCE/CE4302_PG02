@@ -14,3 +14,5 @@ Codigo Fuente/results/*/asm_output/*
 # Ignore Python virtual environment
 Codigo Fuente/venv/
 
+# Ignore GPU profiling results
+Codigo Fuente/results/gpu/profiling/gpu_profiling.txt

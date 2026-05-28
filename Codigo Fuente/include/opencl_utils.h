@@ -67,4 +67,6 @@ void opencl_print_build_log(
     cl_device_id device
 );
 
+double opencl_get_event_time_ms(cl_event event);
+
 #endif
