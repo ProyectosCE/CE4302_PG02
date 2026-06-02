@@ -8,8 +8,8 @@ Average filter count        : 16
 
 Average H2D signal transfer : 0.004 ms
 Average H2D filters transfer: 0.001 ms
-Average kernel execution    : 288.992 ms
-Average D2H output transfer : 81.875 ms
-Average total GPU pipeline  : 370.872 ms
+Average kernel execution    : 289.246 ms
+Average D2H output transfer : 95.317 ms
+Average total GPU pipeline  : 384.568 ms
 
 =============================================

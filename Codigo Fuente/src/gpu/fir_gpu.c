@@ -2,6 +2,7 @@
 
 #include "../../include/fir_gpu.h"
 #include "../../include/opencl_utils.h"
+#include "../../include/timer.h"
 
 #include <CL/cl.h>
 
@@ -784,6 +785,8 @@ int fir_gpu(
      * de la memoria del dispositivo. Para guardarlos o validarlos desde CPU,
      * se deben copiar al buffer output del host.
      */
+    double read_start_ms = get_time_ms();
+    
     error = clEnqueueReadBuffer(
         queue,
         output_mem,
@@ -811,23 +814,17 @@ int fir_gpu(
         goto cleanup;
     }
 
-    double write_signal_ms =
-    opencl_get_event_time_ms(write_signal_event);
+    double read_end_ms = get_time_ms();
 
-    double write_filters_ms =
-        opencl_get_event_time_ms(write_filters_event);
+    double write_signal_ms = opencl_get_event_time_ms(write_signal_event);
 
-    double read_output_ms =
-        opencl_get_event_time_ms(read_output_event);
+    double write_filters_ms = opencl_get_event_time_ms(write_filters_event);
 
-    double total_transfer_ms =
-        write_signal_ms +
-        write_filters_ms +
-        read_output_ms;
+    double read_output_ms = read_end_ms - read_start_ms;
 
-    double total_gpu_pipeline_ms =
-        total_transfer_ms +
-        *kernel_time_ms;
+    double total_transfer_ms = write_signal_ms + write_filters_ms + read_output_ms;
+
+    double total_gpu_pipeline_ms = total_transfer_ms + *kernel_time_ms;
 
     /**
      * @brief Marca la ejecución como exitosa.
