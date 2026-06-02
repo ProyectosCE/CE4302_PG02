@@ -1,28 +1,46 @@
+"""
+Script para generar resúmenes consolidados del perfilado de GPU.
+
+Este script analiza el archivo de perfilado bruto, clasifica cada ejecución según el tamaño del dataset,
+agrupa las métricas por categoría y genera archivos de resumen con promedios por dataset.
+
+Uso:
+    Ejecutar directamente para producir los archivos *_gpu_summary.txt dentro del directorio de profiling.
+
+Autor: [Tu Nombre]
+"""
+
 import re
 from pathlib import Path
 
 
 # ============================================================
-# Paths
+# RUTAS
 # ============================================================
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parent  # Directorio donde reside este script
 
-PROJECT_ROOT = SCRIPT_DIR.parent
+PROJECT_ROOT = SCRIPT_DIR.parent  # Raíz del proyecto
 
-PROFILING_DIR = PROJECT_ROOT / "results" / "gpu" / "profiling"
+PROFILING_DIR = PROJECT_ROOT / "results" / "gpu" / "profiling"  # Carpeta de perfilado GPU
 
-INPUT_FILE = PROFILING_DIR / "gpu_profiling.txt"
+INPUT_FILE = PROFILING_DIR / "gpu_profiling.txt"  # Archivo de entrada con el perfilado bruto
 
 
 # ============================================================
-# Dataset classification
+# CLASIFICACIÓN DEL DATASET
 # ============================================================
 
 def classify_dataset(signal_size, filter_order):
     """
-    Clasifica automáticamente el dataset según dimensiones.
-    Ajusta estos valores si tu proyecto usa otros tamaños.
+    Clasifica automáticamente un dataset según el tamaño de la señal y el orden del filtro.
+
+    :param signal_size: Número de muestras de la señal.
+    :type signal_size: int
+    :param filter_order: Orden del filtro FIR.
+    :type filter_order: int
+    :return: Nombre lógico del dataset: small, medium o large.
+    :rtype: str
     """
 
     if signal_size <= 100000 and filter_order <= 128:
@@ -35,10 +53,20 @@ def classify_dataset(signal_size, filter_order):
 
 
 # ============================================================
-# Parsing helpers
+# HELPERS DE PARSEO
 # ============================================================
 
 def extract_float(pattern, text):
+    """
+    Extrae un valor flotante desde un bloque de texto usando una expresión regular.
+
+    :param pattern: Patrón regular con un grupo de captura numérico.
+    :type pattern: str
+    :param text: Texto donde se buscará el valor.
+    :type text: str
+    :return: Valor flotante si se encuentra; en caso contrario, None.
+    :rtype: float | None
+    """
     match = re.search(pattern, text)
 
     if not match:
@@ -48,6 +76,16 @@ def extract_float(pattern, text):
 
 
 def extract_int(pattern, text):
+    """
+    Extrae un valor entero desde un bloque de texto usando una expresión regular.
+
+    :param pattern: Patrón regular con un grupo de captura numérico.
+    :type pattern: str
+    :param text: Texto donde se buscará el valor.
+    :type text: str
+    :return: Valor entero si se encuentra; en caso contrario, None.
+    :rtype: int | None
+    """
     match = re.search(pattern, text)
 
     if not match:
@@ -57,7 +95,7 @@ def extract_int(pattern, text):
 
 
 # ============================================================
-# Parse profiling file
+# PARSEO DEL ARCHIVO DE PERFILADO
 # ============================================================
 
 if not INPUT_FILE.exists():
@@ -66,10 +104,10 @@ if not INPUT_FILE.exists():
 
 
 with open(INPUT_FILE, "r") as file:
-    content = file.read()
+    content = file.read()  # Lee el contenido completo del archivo de perfilado
 
 
-blocks = content.split("=========== GPU PROFILING ===========")
+blocks = content.split("=========== GPU PROFILING ===========")  # Divide el archivo en bloques de ejecución
 
 datasets = {
     "small": [],
@@ -126,7 +164,7 @@ for block in blocks:
     dataset_name = classify_dataset(
         signal_size,
         filter_order
-    )
+    )  # Clasificación del bloque por tamaño de dataset
 
     datasets[dataset_name].append({
         "signal_size": signal_size,
@@ -141,21 +179,31 @@ for block in blocks:
 
 
 # ============================================================
-# Average computation
+# CÁLCULO DE PROMEDIOS
 # ============================================================
 
 def compute_average(entries, key):
+    """
+    Calcula el promedio de una métrica específica dentro de una lista de entradas.
+
+    :param entries: Lista de diccionarios con métricas de perfilado.
+    :type entries: list[dict]
+    :param key: Clave de la métrica a promediar.
+    :type key: str
+    :return: Promedio de la métrica o 0.0 si no hay entradas.
+    :rtype: float
+    """
 
     if not entries:
         return 0.0
 
-    total = sum(entry[key] for entry in entries)
+    total = sum(entry[key] for entry in entries)  # Suma acumulada de la métrica seleccionada
 
     return total / len(entries)
 
 
 # ============================================================
-# Generate summary files
+# GENERACIÓN DE RESÚMENES
 # ============================================================
 
 for dataset_name, entries in datasets.items():
@@ -163,7 +211,7 @@ for dataset_name, entries in datasets.items():
     output_file = (
         PROFILING_DIR /
         f"{dataset_name}_gpu_summary.txt"
-    )
+    )  # Archivo de salida por dataset
 
     with open(output_file, "w") as file:
 
