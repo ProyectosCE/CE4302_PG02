@@ -166,6 +166,12 @@ for dataset in DATASETS:
 
     gpu_times.append(gpu_profiles[dataset]["pipeline"])  # Tiempo total del pipeline GPU
 
+    dataset_flops = {
+        "small": 2 * 100000 * 16 * 128,
+        "medium": 2 * 1000000 * 16 * 256,
+        "large": 2 * 10000000 * 16 * 512
+    }
+
 
 # =====================
 # FIGURA 1: TIEMPO DE EJECUCIÓN
@@ -458,6 +464,97 @@ plt.savefig(
 
 plt.close()
 
+# =====================
+# FIGURA 6: GFLOPS
+# =====================
+
+scalar_gflops = []
+simd_gflops = []
+gpu_gflops = []
+
+for i, dataset in enumerate(DATASETS):
+
+    flops = dataset_flops[dataset]
+
+    scalar_gflops.append(
+        flops / (scalar_times[i] * 1e6)
+    )
+
+    simd_gflops.append(
+        flops / (simd_times[i] * 1e6)
+    )
+
+    gpu_gflops.append(
+        flops / (gpu_times[i] * 1e6)
+    )
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+ax.bar(
+    x - width,
+    scalar_gflops,
+    width,
+    label="Scalar",
+    color="#1f77b4"
+)
+
+ax.bar(
+    x,
+    simd_gflops,
+    width,
+    label="SIMD",
+    color="#ff7f0e"
+)
+
+ax.bar(
+    x + width,
+    gpu_gflops,
+    width,
+    label="GPU",
+    color="#2ca02c"
+)
+
+ax.grid(
+    axis="y",
+    linestyle="--",
+    alpha=0.3
+)
+
+ax.set_title(
+    "Achieved Throughput (GFLOPS)",
+    fontsize=TITLE_SIZE
+)
+
+ax.set_xlabel(
+    "Dataset",
+    fontsize=LABEL_SIZE
+)
+
+ax.set_ylabel(
+    "GFLOPS",
+    fontsize=LABEL_SIZE
+)
+
+ax.set_xticks(x)
+
+ax.set_xticklabels(
+    ["Small", "Medium", "Large"]
+)
+
+ax.legend()
+
+add_labels(ax)
+
+plt.tight_layout()
+
+plt.savefig(
+    PLOTS_DIR / "gflops.svg",
+    format="svg",
+    bbox_inches="tight"
+)
+
+plt.close()
+
 
 # =====================
 # MENSAJE FINAL
@@ -470,5 +567,6 @@ print(f"  {PLOTS_DIR / 'gpu_pipeline_small.svg'}")
 print(f"  {PLOTS_DIR / 'gpu_pipeline_medium.svg'}")
 print(f"  {PLOTS_DIR / 'gpu_pipeline_large.svg'}")
 print(f"  {PLOTS_DIR / 'ipc.svg'}")
+print(f"  {PLOTS_DIR / 'gflops.svg'}")
 print()
 print("All figures generated successfully.")
