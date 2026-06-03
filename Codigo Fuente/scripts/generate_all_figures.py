@@ -406,6 +406,58 @@ plt.savefig(
 
 plt.close()
 
+# =====================
+# FIGURA 5: SIMD PARALLEL EFFICIENCY
+# =====================
+
+SIMD_WIDTH = 8
+
+simd_efficiency = [
+    (s / SIMD_WIDTH) * 100.0
+    for s in speedup_simd
+]
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+bars = ax.bar(
+    ["Small", "Medium", "Large"],
+    simd_efficiency,
+    color="#00d26a"
+)
+
+ax.set_title(
+    "SIMD Parallel Efficiency",
+    fontsize=TITLE_SIZE
+)
+
+ax.set_ylabel("Efficiency (%)")
+
+ax.grid(
+    axis="y",
+    linestyle="--",
+    alpha=0.3
+)
+
+for bar, value in zip(bars, simd_efficiency):
+    ax.text(
+        bar.get_x() + bar.get_width()/2,
+        value,
+        f"{value:.1f}%",
+        ha="center",
+        va="bottom",
+        fontsize=10
+    )
+
+plt.tight_layout()
+
+plt.savefig(
+    PLOTS_DIR / "simd_parallel_efficiency.svg",
+    format="svg",
+    bbox_inches="tight"
+)
+
+plt.close()
+
 
 # =====================
 # MENSAJE FINAL
