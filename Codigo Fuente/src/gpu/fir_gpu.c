@@ -2,6 +2,7 @@
 
 #include "../../include/fir_gpu.h"
 #include "../../include/opencl_utils.h"
+#include "../../include/timer.h"
 
 #include <CL/cl.h>
 
@@ -201,6 +202,10 @@ int fir_gpu(
      */
     cl_event kernel_event = NULL;
 
+    cl_event write_signal_event = NULL;
+    cl_event write_filters_event = NULL;
+    cl_event read_output_event = NULL;
+
     /**
      * @brief Código fuente del kernel cargado desde kernels/fir.cl.
      *
@@ -216,6 +221,19 @@ int fir_gpu(
      * correctamente.
      */
     int status = -1;
+
+    FILE* profiling_file = NULL;
+
+    profiling_file = fopen(
+        "results/gpu/profiling/gpu_profiling.txt",
+        "a"
+    );
+
+    if (!profiling_file)
+    {
+        fprintf(stderr,
+                "Warning: could not open GPU profiling file.\n");
+    }
 
     /**
      * @brief Tamaño total del buffer de salida.
@@ -443,7 +461,7 @@ int fir_gpu(
         signal,
         0,
         NULL,
-        NULL
+        &write_signal_event
     );
 
     if (opencl_check_error(error, "clEnqueueWriteBuffer signal") != 0)
@@ -466,7 +484,7 @@ int fir_gpu(
         filters,
         0,
         NULL,
-        NULL
+        &write_filters_event
     );
 
     if (opencl_check_error(error, "clEnqueueWriteBuffer filters") != 0)
@@ -767,6 +785,8 @@ int fir_gpu(
      * de la memoria del dispositivo. Para guardarlos o validarlos desde CPU,
      * se deben copiar al buffer output del host.
      */
+    double read_start_ms = get_time_ms();
+    
     error = clEnqueueReadBuffer(
         queue,
         output_mem,
@@ -776,7 +796,7 @@ int fir_gpu(
         output,
         0,
         NULL,
-        NULL
+        &read_output_event
     );
 
     if (opencl_check_error(error, "clEnqueueReadBuffer output") != 0)
@@ -784,10 +804,75 @@ int fir_gpu(
         goto cleanup;
     }
 
+    error = clWaitForEvents(
+        1,
+        &read_output_event
+    );
+
+    if (opencl_check_error(error, "clWaitForEvents read_output") != 0)
+    {
+        goto cleanup;
+    }
+
+    double read_end_ms = get_time_ms();
+
+    double write_signal_ms = opencl_get_event_time_ms(write_signal_event);
+
+    double write_filters_ms = opencl_get_event_time_ms(write_filters_event);
+
+    double read_output_ms = read_end_ms - read_start_ms;
+
+    double total_transfer_ms = write_signal_ms + write_filters_ms + read_output_ms;
+
+    double total_gpu_pipeline_ms = total_transfer_ms + *kernel_time_ms;
+
     /**
      * @brief Marca la ejecución como exitosa.
      */
     status = 0;
+
+    if (profiling_file)
+    {
+        fprintf(profiling_file,
+                "=========== GPU PROFILING ===========\n");
+
+        fprintf(profiling_file,
+                "Signal size         : %zu\n",
+                signal_size);
+
+        fprintf(profiling_file,
+                "Filter order        : %zu\n",
+                filter_order);
+
+        fprintf(profiling_file,
+                "Filter count        : %zu\n",
+                filter_count);
+
+        fprintf(profiling_file,
+                "H2D signal transfer : %.3f ms\n",
+                write_signal_ms);
+
+        fprintf(profiling_file,
+                "H2D filters transfer: %.3f ms\n",
+                write_filters_ms);
+
+        fprintf(profiling_file,
+                "Kernel execution    : %.3f ms\n",
+                *kernel_time_ms);
+
+        fprintf(profiling_file,
+                "D2H output transfer : %.3f ms\n",
+                read_output_ms);
+
+        fprintf(profiling_file,
+                "Total GPU pipeline  : %.3f ms\n",
+                total_gpu_pipeline_ms);
+
+        fprintf(profiling_file,
+                "=====================================\n\n");
+
+        fflush(profiling_file);
+    }
 
 cleanup:
 
@@ -804,6 +889,25 @@ cleanup:
      * El bloque cleanup se ejecuta tanto en éxito como en error, garantizando
      * una salida controlada.
      */
+
+    if (profiling_file)
+    {
+        fclose(profiling_file);
+    }
+     if (write_signal_event)
+    {
+        clReleaseEvent(write_signal_event);
+    }
+
+    if (write_filters_event)
+    {
+        clReleaseEvent(write_filters_event);
+    }
+
+    if (read_output_event)
+    {
+        clReleaseEvent(read_output_event);
+    }
     if (kernel_event)
     {
         clReleaseEvent(kernel_event);

@@ -317,3 +317,44 @@ void opencl_print_build_log(
 
     free(log);
 }
+
+double opencl_get_event_time_ms(cl_event event)
+{
+    if (!event)
+    {
+        return 0.0;
+    }
+
+    cl_int error;
+
+    cl_ulong start = 0;
+    cl_ulong end = 0;
+
+    error = clGetEventProfilingInfo(
+        event,
+        CL_PROFILING_COMMAND_START,
+        sizeof(cl_ulong),
+        &start,
+        NULL
+    );
+
+    if (error != CL_SUCCESS)
+    {
+        return 0.0;
+    }
+
+    error = clGetEventProfilingInfo(
+        event,
+        CL_PROFILING_COMMAND_END,
+        sizeof(cl_ulong),
+        &end,
+        NULL
+    );
+
+    if (error != CL_SUCCESS)
+    {
+        return 0.0;
+    }
+
+    return (double)(end - start) / 1000000.0;
+}

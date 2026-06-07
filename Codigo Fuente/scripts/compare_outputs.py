@@ -131,8 +131,8 @@ for implementation in COMPARISON_IMPLEMENTATIONS:
 
             print(
                 f"  [OK] {filename} | "
-                f"max_error={max_error:.8f} | "
-                f"mean_error={mean_error:.8f}"
+                f"max_error={max_error:.20f} | "
+                f"mean_error={mean_error:.20f}"
             )
 
 print("")
