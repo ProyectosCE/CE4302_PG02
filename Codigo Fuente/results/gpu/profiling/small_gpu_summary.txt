@@ -1,0 +1,15 @@
+=========== GPU PROFILING SUMMARY ===========
+Dataset              : small
+Executions analyzed  : 1000
+
+Average signal size         : 100000
+Average filter order        : 128
+Average filter count        : 16
+
+Average H2D signal transfer : 0.005 ms
+Average H2D filters transfer: 0.001 ms
+Average kernel execution    : 52.302 ms
+Average D2H output transfer : 18.262 ms
+Average total GPU pipeline  : 70.571 ms
+
+=============================================

@@ -46,6 +46,33 @@ cache-misses,\
 branches,\
 branch-misses"
 
+CACHE_EVENTS="\
+L1-dcache-loads,\
+L1-dcache-load-misses,\
+LLC-loads,\
+LLC-load-misses"
+
+# EVENTOS SIMD/FP
+SIMD_EVENTS="
+fp_ret_sse_avx_ops.all,
+fp_ret_sse_avx_ops.sp_add_sub_flops,
+fp_ret_sse_avx_ops.sp_mult_flops,
+fp_ret_sse_avx_ops.sp_mult_add_flops"
+
+# EVENTOS EXTRA MEMORIA
+MEMORY_EVENTS="\
+bus-cycles"
+
+#SELECCION EVENTOS SEGUN IMPLEMENTACION
+if [ "$IMPLEMENTATION" == "scalar" ]; then
+    PERF_EVENTS="${PERF_EVENTS},${CACHE_EVENTS}"
+elif [ "$IMPLEMENTATION" == "simd" ]; then
+    PERF_EVENTS="${PERF_EVENTS},${CACHE_EVENTS},${SIMD_EVENTS},${MEMORY_EVENTS}"
+else
+    PERF_EVENTS="${PERF_EVENTS}"
+
+fi
+
 SMALL_RUNS=1000
 MEDIUM_RUNS=100
 LARGE_RUNS=10
@@ -54,6 +81,8 @@ RESULTS_DIR="results/${IMPLEMENTATION}/perf"
 
 # CREAR DIRECTORIO RESULTADOS
 mkdir -p "$RESULTS_DIR"
+
+mkdir -p "results/gpu/profiling"
 
 # COMPILACION
 echo ""

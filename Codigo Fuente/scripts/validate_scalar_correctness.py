@@ -6,8 +6,6 @@ verificando que el error absoluto máximo y medio estén dentro de la tolerancia
 
 Uso:
     Ejecutar directamente para imprimir el estado de validación de la corrección numérica.
-
-Autor: [Tu Nombre]
 """
 
 import os
